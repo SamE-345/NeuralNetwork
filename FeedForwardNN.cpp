@@ -82,40 +82,28 @@ class Layer{
 };
 
 
-class NeuralNetwork{
+class FeedForwardNN{
     public:
         vector<Layer> Layers;
-        NeuralNetwork(int layerSizes[]){
+        FeedForwardNN(int layerSizes[]){
             int x = 0;
             for(int i=0; i<sizeof(layerSizes); i++){
                 Layers.push_back(Layer(layerSizes[i],x));
                 x=layerSizes[i];
             }
         }
-        void trainModel(vector<double, double> trainingData){
-            //Put labels in column 0, rest of data in other columns.
+        void trainModel(vector<vector<double>> trainingData, int epochs, vector<vector<double>> labels, const double lr = 0.02){
+            for (int e = 0; e < epochs;e++) {
+                for (int i = 0; i < trainingData.size(); ++i) {
+                    backpropagate(trainingData[i], labels[i], lr);
+                }
+            }
 
         }
         vector<double> predict(vector<double> input){
             return activateLayer(0, input);
         }
-    private:
-        vector<double> activateLayer(int i, vector<double> inputs){
-            if (i>= Layers.size()){
-                return inputs;
-            }
-            else{
-                activateLayer(i+1, Layers[i].feedForward(inputs, false));
-            }
-        }
-        double meanSqrError(vector<double> labels, vector<double> inputs){
-            double loss = 0;
-            for(int i=0; i<inputs.size();i++){
-                loss += pow((inputs[i]-labels[i]),2);
-            }
-            return loss/inputs.size();
-        }
-        void backpropogate(vector<double> labels, vector<double> inputs, const int learningRate){
+        void backpropagate(vector<double> labels, vector<double> inputs, const int learningRate){
             ActivationFunction funct;
             vector<double> L0 = inputs;
             vector<vector<double>> activations = {L0}; //The activation for the layer1 neurons are the inputs
@@ -135,9 +123,9 @@ class NeuralNetwork{
 
             for(int iii = end-1; iii>= 0; iii--){ // Calculate error in hidden layers
                 vector<double> hiddenDelta;
-                for(int iv=0; iv<Layers[iii].layer.size(); iv++){
+                for(int iv=0; iv<Layers[iii].layer.size(); iv++){ //Neuron
                     double error = 0.0;
-                    for(int v=0; v<Layers[iii+1].layer.size(); v++){
+                    for(int v=0; v<Layers[iii+1].layer.size(); v++){ //Weights
                         error += DeltasList[iii+1][v] * Layers[iii+1].layer[v].weights[iv];
                     }
                     hiddenDelta.push_back(error * funct.sigmoidDerivative(Layers[iii].layer[iv].lastSum));
@@ -147,16 +135,31 @@ class NeuralNetwork{
             }
 
             //Update weights next
-            for(int i=0; i<Layers.size(); i++){
-                for(int ii=0; ii<Layers[i].layer.size(); i++){
-                    for(int iii=0; iii<Layers[i].layer[ii].weights.size(); iii++){
+            for(int i=0; i<Layers.size(); i++){ //Iterate all layers
+                for(int ii=0; ii<Layers[i].layer.size(); i++){ //Iterate all neurons
+                    for(int iii=0; iii<Layers[i].layer[ii].weights.size(); iii++){ //Iterate all weights
                         Layers[i].layer[ii].weights[iii] -= DeltasList[i][ii] * learningRate * Layers[i].layer[ii].lastInputs[iii];
                     }
                     Layers[i].layer[ii].bias -= learningRate * DeltasList[i][ii];
                 }
             }
-
-
         }
 
+
+    private:
+        vector<double> activateLayer(int i, vector<double> inputs){
+            if (i>= Layers.size()){
+                return inputs;
+            }
+            else{
+                activateLayer(i+1, Layers[i].feedForward(inputs, false));
+            }
+        }
+        double meanSqrError(vector<double> labels, vector<double> inputs){
+            double loss = 0;
+            for(int i=0; i<inputs.size();i++){
+                loss += pow((inputs[i]-labels[i]),2);
+            }
+            return loss/inputs.size();
+        }
 };
