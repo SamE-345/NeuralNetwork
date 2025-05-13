@@ -9,7 +9,7 @@ class ActivationFunction{
             return (1/(1+exp(-x)));
         }
         double tanh(double x){
-            return (exp(x)-exp(-x))/(exp(x)+exp(-x));
+            return (exp(x)-exp(-x))/(exp(x)+exp(-x)); 
         }
         double relu(double x){
             if(x<0){
@@ -85,11 +85,11 @@ class Layer{
 class FeedForwardNN{
     public:
         vector<Layer> Layers;
-        FeedForwardNN(int layerSizes[]){
+        FeedForwardNN(vector<int> layerSizes){
             int x = 0;
-            for(int i=0; i<sizeof(layerSizes); i++){
-                Layers.push_back(Layer(layerSizes[i],x));
-                x=layerSizes[i];
+            for(int i=0; i<layerSizes.size(); i++){
+                Layers.push_back(Layer(layerSizes.at(i),x));
+                x=layerSizes.at(i);
             }
         }
         void trainModel(vector<vector<double>> trainingData, int epochs, vector<vector<double>> labels, const double lr = 0.02){
@@ -152,7 +152,7 @@ class FeedForwardNN{
                 return inputs;
             }
             else{
-                activateLayer(i+1, Layers[i].feedForward(inputs, false));
+                return activateLayer(i+1, Layers[i].feedForward(inputs, false));
             }
         }
         double meanSqrError(vector<double> labels, vector<double> inputs){
