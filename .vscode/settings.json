@@ -1,11 +1,14 @@
 {
     "files.associations": {
-        "vector": "cpp"
+        "vector": "cpp",
+        "knearestneighbours": "cpp"
     },
     "github.copilot.enable": {
         "*": false,
         "plaintext": false,
         "markdown": false,
-        "scminput": false
+        "scminput": false,
+        "python": false,
+        "cpp": false
     }
 }
