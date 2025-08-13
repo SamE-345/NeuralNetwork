@@ -10,14 +10,14 @@ class SingleVarLinearReg{
         int m;
         double J(){
             double sum=0;
-            for(int i=0; i<sizeof(features); i++){
+            for(int i=0; i<features.size(); i++){
                 sum += (H(features[i]) - labels[i])*(H(features[i]) - labels[i]);
             }
-            return sum*(1/2*m);
+            return sum*(1/2.0*m);
         }
         double dJ(){
             double sum=0;
-            for(int i=0; i<sizeof(features); i++){
+            for(int i=0; i<features.size(); i++){
                 sum += (H(features[i]) - labels[i])*features[i];
             }
             return sum;
@@ -26,8 +26,7 @@ class SingleVarLinearReg{
         SingleVarLinearReg(vector<double> feat,vector<double> lab ){
             features = feat;
             labels = lab;
-            m = sizeof(lab);
-
+            m = lab.size();
         }
         double H(double x){
             return (w*x +b);
@@ -49,5 +48,50 @@ class SingleVarLinearReg{
         }
 };
 class MultiVarLinearReg{
-    //TODO
+    private:
+        vector<double> weights;
+        vector<vector<double>> features;
+        vector<double> labels;
+        double bias = 0.0;
+        double J(int index){
+            return (h(features[index]) - labels[index]) * (h(features[index]) - labels[index]);
+        }
+        vector<double> dJ(int index){
+            vector<double> delta(weights.size());
+            double error = h(features[index]) - labels[index];
+            for(int i=0; i< weights.size(); ++i){
+                delta[i] = error * 2 * features[index][i];
+            }
+            bias += error;
+            return delta;
+        }
+
+    public:
+        MultiVarLinearReg(vector<vector<double>> feat, vector<double> lab){
+            features = feat;
+            for(int i=0; i<features[0].size(); ++i){
+                weights.push_back(0.0);
+            }
+            features = feat;
+            labels = lab;
+        }
+        double h(vector<double> theta){
+            double sum =0;
+            for(int i=0; i<weights.size(); ++i){
+                sum += weights[i] * theta[i];
+            }
+            return sum;
+        }
+        void train(){
+            const double lr = 0.02;
+            const int n = features[0].size();
+            vector<double> Deltas;
+            for(int i=0; i<n; ++i){
+                Deltas = dJ(i);
+                for(int ii=0; ii<weights.size();++ii){
+                    weights[ii] -= lr*Deltas[ii];
+                }
+            }
+
+        }
 };
